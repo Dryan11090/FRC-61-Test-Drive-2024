@@ -25,7 +25,7 @@ public class SwerveSubsystem extends SubsystemBase{
     false,
     9,
     0,
-    false);
+    true);
 
  public final SwerveModule frontRight = new SwerveModule
     (
@@ -55,7 +55,7 @@ public final SwerveModule backLeft = new SwerveModule
     false,
     12,
     0,
-    false);
+    true);
 
 public double xPos = 0;
 public double yPos = 0;
@@ -169,9 +169,10 @@ public void stopModules() {
 }
 //They are all scrambled up, but this is the correct order of the states list
  public void setModuleState(SwerveModuleState[] requestedState) {
-    frontLeft.setState(requestedState[1]);
-   frontRight.setState(requestedState[0]);
-    backLeft.setState(requestedState[3]);
+    frontLeft.setState(requestedState[0]);
+   frontRight.setState(requestedState[1]);
     backRight.setState(requestedState[2]);
+    backLeft.setState(requestedState[3]);
+
  }
 }

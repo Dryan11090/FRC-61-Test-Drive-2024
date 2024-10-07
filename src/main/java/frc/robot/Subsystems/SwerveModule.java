@@ -32,7 +32,7 @@ public class SwerveModule {
 
         //added this 9/25/2024
         this.driveMotorReversed = inputdriveMotorReversed;
-        this.turningMotorReversed = inputdriveMotorReversed;
+        this.turningMotorReversed = inputturningMotorReversed;
 
         driveMotor = new TalonFX(driveMotorID);
         turningMotor = new TalonFX(turningMoterID);
@@ -114,5 +114,11 @@ public class SwerveModule {
     public void halt() {
         driveMotor.setControl(m_brake);
         turningMotor.setControl(m_brake);
+    }
+    public void close() {
+        driveMotor.close();
+        turningMotor.close();
+        absEncoder.close();
+        
     }
 }
