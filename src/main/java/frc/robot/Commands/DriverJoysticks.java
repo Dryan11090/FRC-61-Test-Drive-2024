@@ -5,19 +5,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.Subsystems.SwerveSubsystem;
 
-//TODO Fix Wheel rotating after joystick returns from doing a half spin on the input
-//Just add "&& driveJoystick.isConnected()" NOT TESTED
-// Removed double negitives on getYSpeed and getThataSpeed
-//Added SlewRateLimiters to getXSpeed, getYSpeed, getTurningSpeed 
 
-public class DriverJoysticks {
-  //Get the joysticks from DriverStation
+
+public class DriverJoysticks extends Command{
+   public Joystick turnJoystick = new Joystick(0);  
    public Joystick driveJoystick = new Joystick(1);
-   public Joystick turnJoystick = new Joystick(0);
 
-  //Create acceleration limit
   SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.PhysicalMaxAcclerationUnitsPerSecond);
   SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.PhysicalMaxAcclerationUnitsPerSecond);
   SlewRateLimiter turningLimiter = new SlewRateLimiter(Constants.PhysicalMaxAcclerationUnitsPerSecond);
@@ -25,8 +22,30 @@ public class DriverJoysticks {
   //initialize output variables (unit: m/s)
   double xSpeed = 0;
   double ySpeed = 0;
-  //TODO find out what unit this is 
-    double turningSpeed = 0;
+  double turningSpeed = 0; 
+
+  SwerveSubsystem DriveBase;
+
+    @Override
+     public void initialize() {
+    
+    }
+
+    @Override
+    public void execute() {
+        DriveBase.setModuleState(this.getFieldRelativeChasisSpeed(DriveBase.getRotation2d()));
+        
+        
+    }
+
+    public  SwerveModuleState[] getFieldRelativeChasisSpeed(Rotation2d RobotAngle) {
+        return Constants.kDriveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(getXSpeed(), -getYSpeed(), getTurningSpeed(), RobotAngle)); 
+    }
+    //Notes about ^getFieldRelativeChasisSpeed^
+        //Take the outputs of the Joysticks and convert them into a formate accepted by SwerveSubsystem
+        //FieldRelative is like driving the robot in a "3th person mode"
+
+
 
 
     //Take the outputs of the Joysticks and convert them into a formate accepted by SwerveSubsystem
@@ -35,11 +54,7 @@ public class DriverJoysticks {
     return  Constants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds(getXSpeed(), getYSpeed(), getTurningSpeed())); 
     }
 
-    //Take the outputs of the Joysticks and convert them into a formate accepted by SwerveSubsystem
-    //FieldRelative is like driving the robot in a "3th person mode"
-    public  SwerveModuleState[] getFieldRelativeChasisSpeed(Rotation2d RobotAngle) {
-        return Constants.kDriveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(getXSpeed(), -getYSpeed(), getTurningSpeed(), RobotAngle)); 
-    }
+
 
     public double getXSpeed() {
 //if not in deadzone and controller is connected

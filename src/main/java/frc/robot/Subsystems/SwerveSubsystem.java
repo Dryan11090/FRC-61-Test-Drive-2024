@@ -21,17 +21,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 
-//TODO Fix All of the odomitry related things
-//Deleted A bit of unused code
-//Commented off update odo due to the methiod using a broken part of the swerveModule class
-//Commented off PID for the DriveBase they will be used for transfering Postion to speed for autonomous
+
 public class SwerveSubsystem extends SubsystemBase{
 
     public static String trajectoryJson = "paths/output/Bounce.wpilib.json";
     public Trajectory tr = new Trajectory();
 
 
-    public final SwerveModule frontLeft = new SwerveModule
+    public final SwerveModule frontLeft; /*  new SwerveModule
     (
     2, //low 2 || 
     1, // Low 1 ||
@@ -40,8 +37,8 @@ public class SwerveSubsystem extends SubsystemBase{
     9, // Low 9 ||
     0, // Low 0 ||
     true); // Low true ||
-
- public final SwerveModule frontRight = new SwerveModule
+*/
+ public final SwerveModule frontRight; /*  new SwerveModule
     (
     4, //Low 4 ||
     3, // Low 3 ||
@@ -50,8 +47,8 @@ public class SwerveSubsystem extends SubsystemBase{
     10, // low 10 ||
     0, // Low 0 ||
     true); // Low True
-
-public final SwerveModule backRight = new SwerveModule
+*/
+public final SwerveModule backRight; /* new SwerveModule
     (
     6, // Low 6 ||
     5, // Low 5 //
@@ -60,8 +57,8 @@ public final SwerveModule backRight = new SwerveModule
     11, //Low 11 ||
     0, // Low 0 ||
     true); // Low true ||
-
- public final SwerveModule backLeft = new SwerveModule
+*/
+ public final SwerveModule backLeft; /*  new SwerveModule
     (
     8, // Low 8 ||
     7, // Low 7 ||
@@ -70,14 +67,14 @@ public final SwerveModule backRight = new SwerveModule
     12, // Low 12 ||
     0, // Low 0 ||
     true); //Low true ||
-
+*/
 public double xPos = 0;
 public double yPos = 0;
 public double FowardOffset = 0;
 
  private PIDController DrivingXPID = new PIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset);
  private PIDController DrivingYPID = new PIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset);
-        private ProfiledPIDController AnglePID = new ProfiledPIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset, 
+ private ProfiledPIDController AnglePID = new ProfiledPIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset, 
             new TrapezoidProfile.Constraints(
                 4/10*Math.PI, //Max Angular Speed (in Rad/s)
                 Math.PI/4) // Max Angular Acceleration (Rad/s^2)
@@ -85,23 +82,28 @@ public double FowardOffset = 0;
  // private PIDController AnglePID = new PIDController(Constants.AngleProportionalGain, Constants.AngleReset, Constants.AngleReset);
  public HolonomicDriveController Holo = new HolonomicDriveController(DrivingXPID, DrivingYPID, AnglePID);
 
-public Pigeon2 InertiaMeasureUnit = new Pigeon2(22); //Low 22 || High 35
-public final SwerveDriveOdometry odometer = new SwerveDriveOdometry(Constants.kDriveKinematics, new Rotation2d(0),new SwerveModulePosition[] {
+public Pigeon2 InertiaMeasureUnit; // new Pigeon2(22); //Low 22 || High 35
+public final SwerveDriveOdometry odometer; /* = new SwerveDriveOdometry(Constants.kDriveKinematics, new Rotation2d(0),new SwerveModulePosition[] {
     frontLeft.getPosition(),
     frontRight.getPosition(),
     backRight.getPosition(),
     backLeft.getPosition()
-});
+}); */
 
-    public SwerveSubsystem() {
-   /*      new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-             //  UpdatePostionReadings();
-            } catch (Exception e) {
-            }
-        }).start();
-    */
+    public SwerveSubsystem(SwerveModule[] modules, Pigeon2 pigeon) {
+        this.frontLeft = modules[0];
+        this.frontRight = modules[1];
+        this.backRight = modules[2];
+        this.backLeft = modules[3];
+        this.InertiaMeasureUnit = pigeon;
+        this.odometer = 
+        new SwerveDriveOdometry(Constants.kDriveKinematics, new Rotation2d(0),new SwerveModulePosition[] {
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            backRight.getPosition(),
+            backLeft.getPosition()
+        });
+    AnglePID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     
