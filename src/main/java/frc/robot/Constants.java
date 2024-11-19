@@ -14,13 +14,13 @@ import edu.wpi.first.math.util.Units;
  * globally (i.e. public static). Do not put anything functional in this class.
  *
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
- * constants are needed, to reduce verbosity.
+ * constants are needed, to reduce verbosity.</p>
  */
 public final class Constants {
 
 public static final double topSpeedX = 1;
 public static final double topSpeedY = 1;
-public static final double topSpeedTurning = Math.PI / 2;
+public static final double topSpeedTurning = Math.PI / 4;
 
 public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
 public static final double kDriveMotorGearRatio = 1 / 5.8462;
@@ -65,7 +65,7 @@ public static final double kWheelBase = Units.inchesToMeters(29);
 
 
 public static double kPhysicalMaxSpeedMeterPerSecond = 15; 
-public static double PhysicalMaxAcclerationUnitsPerSecond = 10;
+public static double PhysicalMaxAcclerationUnitsPerSecond = 2;
 public static double kDeadband = 0.001; //To be changed
 public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;

@@ -36,8 +36,6 @@ public class SwerveModule {
 
         driveMotor = new TalonFX(driveMotorID);
         turningMotor = new TalonFX(turningMoterID);
-        
-        this.
 
         turningPID = new PIDController(Constants.TurningProportionalGain, Constants.TurningReset, 0);
         turningPID.enableContinuousInput(Math.PI, -Math.PI);
@@ -102,7 +100,7 @@ public class SwerveModule {
             }  
        
         state = SwerveModuleState.optimize(state, new Rotation2d(getAbsEncoderValue()));
-        driveMotor.set(-state.speedMetersPerSecond / 3 * (driveMotorReversed ? -1 : 1));
+        driveMotor.set(-state.speedMetersPerSecond* 2/3 * (driveMotorReversed ? -1 : 1));
         double turnSpeed = (turningMotorReversed ? -1 : 1) * turningPID.calculate(getAbsEncoderValue(), state.angle.getRadians());
         turningMotor.set(turnSpeed);
     }   

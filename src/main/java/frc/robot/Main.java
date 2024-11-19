@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -11,7 +12,10 @@ import edu.wpi.first.wpilibj.RobotBase;
  * you are doing, do not modify this file except to change the parameter class to the startRobot
  * call.
  */
+
 public final class Main {
+      public static String trajectoryJson = "paths/output/Bounce.wpilib.json";
+
   private Main() {}
 
   /**

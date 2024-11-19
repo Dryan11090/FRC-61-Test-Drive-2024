@@ -1,97 +1,126 @@
 package frc.robot.Subsystems;
 
+
+import java.nio.file.Path;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-// import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.*;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+
 
 //TODO Fix All of the odomitry related things
 //Deleted A bit of unused code
 //Commented off update odo due to the methiod using a broken part of the swerveModule class
 //Commented off PID for the DriveBase they will be used for transfering Postion to speed for autonomous
 public class SwerveSubsystem extends SubsystemBase{
+
+    public static String trajectoryJson = "paths/output/Bounce.wpilib.json";
+    public Trajectory tr = new Trajectory();
+
+
     public final SwerveModule frontLeft = new SwerveModule
     (
-    2,
-    1,
-    true,
-    false,
-    9,
-    0,
-    true);
+    2, //low 2 || 
+    1, // Low 1 ||
+    true, // Low true ||
+    false, // False ||
+    9, // Low 9 ||
+    0, // Low 0 ||
+    true); // Low true ||
 
  public final SwerveModule frontRight = new SwerveModule
     (
-    4,
-    3,
-    false,
-    false,
-    10,
-    0,
-    true);
+    4, //Low 4 ||
+    3, // Low 3 ||
+    false, // Low False
+    false, // Low false
+    10, // low 10 ||
+    0, // Low 0 ||
+    true); // Low True
 
-public final SwerveModule backLeft = new SwerveModule
+public final SwerveModule backRight = new SwerveModule
     (
-    6,
-    5,
-    false,
-    false,
-    11,
-    0,
-    true);
+    6, // Low 6 ||
+    5, // Low 5 //
+    false, //Low False ||
+    false,//Low False ||
+    11, //Low 11 ||
+    0, // Low 0 ||
+    true); // Low true ||
 
- public final SwerveModule backRight = new SwerveModule
+ public final SwerveModule backLeft = new SwerveModule
     (
-    8,
-    7,
-    true,
-    false,
-    12,
-    0,
-    true);
+    8, // Low 8 ||
+    7, // Low 7 ||
+    true,// Low true ||
+    false, //Low False ||
+    12, // Low 12 ||
+    0, // Low 0 ||
+    true); //Low true ||
 
 public double xPos = 0;
 public double yPos = 0;
+public double FowardOffset = 0;
 
-// private PIDController DrivingXPID = new PIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset);
-// private PIDController DrivingYPID = new PIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset);
-// private PIDController AnglePID = new PIDController(Constants.AngleProportionalGain, Constants.AngleReset, Constants.AngleReset);
-private Pigeon2 InertiaMeasureUnit = new Pigeon2(35);
+ private PIDController DrivingXPID = new PIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset);
+ private PIDController DrivingYPID = new PIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset);
+        private ProfiledPIDController AnglePID = new ProfiledPIDController(Constants.DrivingProportionalGain, Constants.DrivingReset, Constants.DrivingReset, 
+            new TrapezoidProfile.Constraints(
+                4/10*Math.PI, //Max Angular Speed (in Rad/s)
+                Math.PI/4) // Max Angular Acceleration (Rad/s^2)
+        );
+ // private PIDController AnglePID = new PIDController(Constants.AngleProportionalGain, Constants.AngleReset, Constants.AngleReset);
+ public HolonomicDriveController Holo = new HolonomicDriveController(DrivingXPID, DrivingYPID, AnglePID);
+
+public Pigeon2 InertiaMeasureUnit = new Pigeon2(22); //Low 22 || High 35
 public final SwerveDriveOdometry odometer = new SwerveDriveOdometry(Constants.kDriveKinematics, new Rotation2d(0),new SwerveModulePosition[] {
     frontLeft.getPosition(),
     frontRight.getPosition(),
-    backLeft.getPosition(),
-    backRight.getPosition()
+    backRight.getPosition(),
+    backLeft.getPosition()
 });
 
     public SwerveSubsystem() {
-        new Thread(() -> {
+   /*      new Thread(() -> {
             try {
                 Thread.sleep(1000);
              //  UpdatePostionReadings();
             } catch (Exception e) {
             }
         }).start();
+    */
     }
 
-    public void intialize() {
-    // AnglePID.enableContinuousInput(180, -180);
+    
+   public void intialize() {
+     AnglePID.enableContinuousInput(-Math.PI, Math.PI);
     resetOdometry(new Pose2d());
+        
+   try{
+    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson);
+    tr = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    
+        } catch(Exception exc) {DriverStation.reportError("Unable to open trajectory: " + trajectoryJson, exc.getStackTrace());} 
     }
 
-//New update Odo Collected from Others code TODO Change to make it work properly
 public void UpdatePos() {
  
 odometer.update(getRotation2d(), new SwerveModulePosition[] {
       frontLeft.getPosition(), frontRight.getPosition(),
-      backLeft.getPosition(), backRight.getPosition()}
+      backRight.getPosition(), backLeft.getPosition()}
       );
     SmartDashboard.putNumber("Robot Heading", getHeading());
 }
@@ -110,19 +139,19 @@ odometer.update(getRotation2d(), new SwerveModulePosition[] {
     public void resetEncoders() {
         frontLeft.resetEncoders();
         frontRight.resetEncoders();
-        backLeft.resetEncoders();
         backRight.resetEncoders();
+        backLeft.resetEncoders();
     }
 public void zeroHeading() {
    InertiaMeasureUnit.reset();
 }
 
 public double getHeading() {
-    return Math.IEEEremainder(InertiaMeasureUnit.getAngle()*Math.PI/180, 360);
+    return Math.IEEEremainder((InertiaMeasureUnit.getAngle()-FowardOffset) * Math.PI/180, 360); // Get rid of neg for low Add neg for high
 }
 
 public Rotation2d getRotation2d() {
-    return Rotation2d.fromDegrees(getHeading());
+    return Rotation2d.fromRadians(getHeading());
 }
 
 public Pose2d getPos() {
@@ -132,47 +161,34 @@ public Pose2d getPos() {
 public void resetOdometry(Pose2d pose) {
 odometer.resetPosition(getRotation2d(), new SwerveModulePosition[] {
       frontLeft.getPosition(), frontRight.getPosition(),
-      backLeft.getPosition(), backRight.getPosition()} ,pose);
+      backRight.getPosition(), backLeft.getPosition()} ,pose);
 }
 public void updateOdometer() {
     odometer.update(getRotation2d(), new SwerveModulePosition[] {
       frontLeft.getPosition(), frontRight.getPosition(),
-      backLeft.getPosition(), backRight.getPosition()}
+      backRight.getPosition(), backLeft.getPosition()}
       );
 }
 
 public void halt() {
         frontLeft.halt();
         frontRight.halt();
-        backLeft.halt();
         backRight.halt();
+        backLeft.halt();
 }
 
-
-//This was code used by someone else, Commented out plan to remove after replacing
-/* 
-@Override
-public void periodic() {
- 
-odometer.update(getRotation2d(), new SwerveModulePosition[] {
-      frontLeft.getPosition(), frontRight.getPosition(),
-      backLeft.getPosition(), backRight.getPosition()}
-      );
-    SmartDashboard.putNumber("Robot Heading", getHeading());
-}
-*/
 public void stopModules() {
     frontLeft.stop();
     frontRight.stop();
-    backLeft.stop();
     backRight.stop();
+    backLeft.stop();
 }
 //They are all scrambled up, but this is the correct order of the states list
  public void setModuleState(SwerveModuleState[] requestedState) {
     frontLeft.setState(requestedState[0]);
    frontRight.setState(requestedState[1]);
-    backRight.setState(requestedState[2]);
-    backLeft.setState(requestedState[3]);
+    backLeft.setState(requestedState[2]);
+    backRight.setState(requestedState[3]);
 
  }
 }
